@@ -47,6 +47,12 @@ endfunction
 
 inoremap <expr> <cr> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>" 
 
+if has('nvim')
+  inoremap <silent><expr> <c-space> coc#refresh()
+else
+  inoremap <silent><expr> <c-@> coc#refresh()
+endif
+
 command! -nargs=0 Prettier :CocCommand prettier.forceFormatDocument
 
 " Use `[g` and `]g` to navigate diagnostics
@@ -61,7 +67,16 @@ nmap <silent><nowait> gi <Plug>(coc-implementation)
 nmap <silent><nowait> gr <Plug>(coc-references)
 
 " Use K to show documentation in preview window
+
 nnoremap <silent> K :call ShowDocumentation()<CR>
+  " Show hover when provider exists, fallback to vim's builtin behavior.
+  function! ShowDocumentation()
+    if CocAction('hasProvider', 'hover')
+      call CocActionAsync('definitionHover')
+    else
+      call feedkeys('K', 'in')
+    endif
+  endfunction
 
 function! ShowDocumentation()
   if CocAction('hasProvider', 'hover')
